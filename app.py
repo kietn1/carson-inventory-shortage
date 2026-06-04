@@ -678,15 +678,13 @@ uploaded = st.sidebar.file_uploader(
 
 st.sidebar.divider()
 st.sidebar.subheader("Risk Filter")
-with st.sidebar.form("filter_form"):
-    show_risks = st.multiselect(
-        "Risk Level",
-        options=["Critical", "Warning", "Watch", "Healthy"],
-        default=["Critical", "Warning", "Watch"],
-    )
-    min_usage = st.number_input("Minimum Outbound Last 30 Days", min_value=0, value=0, step=1)
-    search_text = st.text_input("Search SKU / Description", placeholder="Example: 1624171, POWERWALL...")
-    st.form_submit_button("Apply Filters")
+show_risks = st.sidebar.multiselect(
+    "Risk Level",
+    options=["Critical", "Warning", "Watch", "Healthy"],
+    default=["Critical", "Warning", "Watch"],
+)
+min_usage = st.sidebar.number_input("Minimum Outbound Last 30 Days", min_value=0, value=0, step=1)
+search_text = st.sidebar.text_input("Search SKU / Description", placeholder="Example: 1624171, POWERWALL...")
 
 st.sidebar.divider()
 st.sidebar.markdown(
@@ -762,7 +760,7 @@ with k4:
 
 k5, k6, k7, k8 = st.columns(4)
 with k5:
-    metric_card("Ending Balance", fmt_num(sku_df["Ending Balance"].sum()), "From Ending Balance / Totals rows")
+    metric_card("Ending Balance", fmt_num(sku_df["Ending Balance"].sum()), "From official Ending Balance rows")
 with k6:
     metric_card("Official Total Outbound", fmt_num(sku_df["Official Total Outbound"].sum()), "From Column B = Totals:")
 with k7:
@@ -823,11 +821,8 @@ with sku_tab:
 
         st.subheader(f"{selected_sku} — {selected['Description']}")
         detail_cols = [
-            "Beginning Balance",
             "Official Total Inbound",
             "Official Total Outbound",
-            "Ending Balance",
-            "Ctn Balance",
             "Outbound Last 30 Days",
             "Outbound Last 14 Days",
             "Outbound Last 7 Days",
@@ -889,7 +884,7 @@ with audit_tab:
     with s3:
         metric_card("Not Shipped Rows", fmt_num(len(model["not_shipped_df"])), "Counted if Qty Out > 0")
     with s4:
-        metric_card("Cancelled Transactions", fmt_num(len(model["cancelled_df"])), "Tracked by Ref # contains cancel")
+        metric_card("Cancelled Transactions", fmt_num(len(model["cancelled_df"])), "Counted if Qty Out > 0")
 
     st.divider()
     audit_group_col, audit_table_col = st.columns([1, 2])
@@ -899,7 +894,7 @@ with audit_tab:
     if audit_group == "Recent Outbound":
         audit_options = ["Recent Outbound 30D", "Recent Outbound 14D", "Recent Outbound 7D"]
     elif audit_group == "Official Source Rows":
-        audit_options = ["Official Total Rows", "Official Ending Balance Rows", "Beginning Balance Rows"]
+        audit_options = ["Official Total Rows", "Official Ending Balance Rows"]
     else:
         audit_options = ["Not Shipped Rows", "Cancelled Transactions"]
 
@@ -931,8 +926,6 @@ with audit_tab:
         show_limited_dataframe(model["official_total_df"], height=420)
     elif audit_choice == "Official Ending Balance Rows":
         show_limited_dataframe(model["official_ending_df"], height=420)
-    elif audit_choice == "Beginning Balance Rows":
-        show_limited_dataframe(model["beginning_balance_df"], height=420)
     elif audit_choice == "Not Shipped Rows":
         show_limited_dataframe(model["not_shipped_df"], height=420)
     elif audit_choice == "Cancelled Transactions":
